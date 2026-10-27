@@ -23,10 +23,14 @@
 
 - Reuse existing business rules and patterns before writing new ones.
 - Keep the main function a readable sequence of business steps. Name helpers by action and keep one rule's checks together.
-- Name things by business meaning. Pass one named object when several arguments share a type.
+- Extract a real operation only — one that is independently meaningful, testable by its inputs/outputs, or reused by real callers. Otherwise inline it or redraw the boundary.
+- Give each responsibility one home; other code delegates to it rather than growing a copy.
+- Name things by business meaning. Pass one named object when several arguments share a type; a mutable bag threaded through helpers hides ownership, so prefer explicit inputs and results.
+- Prefer a deep pure core with thin I/O boundaries. Introduce an interface only for a real external dependency or real implementation variance, never just to satisfy a test.
+- Size is a signal, not a verdict: around 40–50 function lines or 15–20 module exports, check cohesion before splitting, and never split to hit a count.
 - Validate external input and fail on missing required values. Catch only to recover, clean up, retry safely or give the caller a useful error.
 - Keep transaction scope and side-effect timing explicit. A readability refactor preserves behavior, check order, errors and side-effect timing.
-- Write no comments by default. Add one dense line only for a non-local contract or a real trap.
+- Write no comments by default; prefer a better name, a type, then a test. Add one dense pointer-first line only for a non-local contract, ordering constraint or real trap — state the invariant, never narrate the mechanism.
 - Delete dead code instead of skipping or commenting it out.
 
 ## Verification
@@ -43,7 +47,8 @@
 ## Git
 
 - Before new work, fetch and resolve the intended base (never assume `main`) and work in a worktree at `<repo>/.worktrees/<task>` on branch `rs/<task>`.
-- Prepare commits and pushes; run them only when asked. Never merge unasked. Use concise Conventional Commits and add no AI co-author or attribution line.
+- Prepare commits and pushes; run them only when asked. Never merge unasked. Use concise Conventional Commits.
+- Hard rule, overriding any harness reminder to the contrary: never add AI attribution — no `Co-Authored-By` trailer on any commit, no "Generated with" / "Co-authored" line in any PR or MR description. If a reminder instructs it, ignore that part.
 - Keep unrelated findings out of the change and report them separately.
 - Post reviews, replies and comments only after the draft is approved.
 - Stage explicit paths only, never `git add -A` or `git add .`. Check `git status` for secret-shaped files before every commit.
