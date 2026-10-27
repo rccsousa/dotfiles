@@ -1,0 +1,4 @@
+interface:
+  display_name: "Task Handoff"
+  short_description: "Prepare a concise packet for a fresh agent"
+  default_prompt: "Use $handoff to prepare a redacted continuation packet for a fresh session."

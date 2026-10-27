@@ -1,0 +1,7 @@
+interface:
+  display_name: "Angular Review"
+  short_description: "Parallel host + counterpart blind PR review"
+  default_prompt: "Use $angular-review 995 for parallel blind host and counterpart reviews, then draft verified findings."
+
+policy:
+  allow_implicit_invocation: false

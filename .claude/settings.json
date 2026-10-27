@@ -1,0 +1,86 @@
+{
+  "model": "opus",
+  "theme": "dark-ansi",
+  "remoteControlAtStartup": false,
+  "env": {
+    "RIPGREP_CONFIG_PATH": "/Users/ruisousa/.claude/ripgreprc"
+  },
+  "modelSettings": {
+    "claude-opus-5-5": {
+      "effortLevel": "medium"
+    },
+    "claude-sonnet-5-5": {
+      "effortLevel": "medium"
+    }
+  },
+  "statusLine": {
+    "type": "command",
+    "command": "bash ~/.claude/statusline-command.sh"
+  },
+  "permissions": {
+    "deny": [
+      "Read(.env)",
+      "Read(**/.env)",
+      "Read(.envrc)",
+      "Read(**/.envrc)",
+      "Read(.env.local)",
+      "Read(**/.env.local)",
+      "Read(.env.development)",
+      "Read(**/.env.development)",
+      "Read(.env.development.local)",
+      "Read(**/.env.development.local)",
+      "Read(.env.production)",
+      "Read(**/.env.production)",
+      "Read(.env.production.local)",
+      "Read(**/.env.production.local)",
+      "Read(.env.staging)",
+      "Read(**/.env.staging)",
+      "Read(.env.test)",
+      "Read(**/.env.test)",
+      "Read(.env.test.local)",
+      "Read(**/.env.test.local)",
+      "Edit(.env)",
+      "Edit(**/.env)",
+      "Edit(.envrc)",
+      "Edit(**/.envrc)",
+      "Edit(.env.local)",
+      "Edit(**/.env.local)",
+      "Edit(.env.development)",
+      "Edit(**/.env.development)",
+      "Edit(.env.development.local)",
+      "Edit(**/.env.development.local)",
+      "Edit(.env.production)",
+      "Edit(**/.env.production)",
+      "Edit(.env.production.local)",
+      "Edit(**/.env.production.local)",
+      "Edit(.env.staging)",
+      "Edit(**/.env.staging)",
+      "Edit(.env.test)",
+      "Edit(**/.env.test)",
+      "Edit(.env.test.local)",
+      "Edit(**/.env.test.local)"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/hooks/grep-secret-guard.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "Read|Edit|Write|NotebookEdit|Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/hooks/env-file-guard.sh"
+          }
+        ]
+      }
+    ]
+  }
+}

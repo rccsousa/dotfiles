@@ -1,0 +1,18 @@
+# Global ripgrep config for Codex — loaded via RIPGREP_CONFIG_PATH
+# (set in ~/.codex/config.toml [shell_environment_policy]).
+# Purpose: keep secrets out of broad searches so `rg` never incidentally
+# surfaces env or key material into the agent's context.
+# Backstops ~/.codex/hooks/env-file-guard.sh, which guards explicit references.
+
+
+--glob=!.env
+--glob=!.env.*
+--glob=!.env*
+--glob=!.envrc
+--glob=!*.envrc
+--glob=!secrets
+--glob=!secrets.*
+--glob=!*.pem
+--glob=!*.key
+--glob=!id_rsa
+--glob=!id_ed25519

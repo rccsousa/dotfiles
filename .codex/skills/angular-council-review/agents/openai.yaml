@@ -1,0 +1,7 @@
+interface:
+  display_name: "Angular Council Review"
+  short_description: "Blind cross-model council review; drafts only"
+  default_prompt: "Use $angular-council-review 995 for a blind cross-model review without grilling me."
+
+policy:
+  allow_implicit_invocation: false

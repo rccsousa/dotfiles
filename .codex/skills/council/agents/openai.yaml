@@ -1,0 +1,4 @@
+interface:
+  display_name: "Model Council"
+  short_description: "Cross-critique plans, grill, and converge in AoE"
+  default_prompt: "Use $council moderator sol to compare my Codex and Claude plans, interview me about consequential tradeoffs, and find the strongest solution."

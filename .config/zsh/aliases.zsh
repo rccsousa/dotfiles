@@ -1,0 +1,13 @@
+alias v='nvim'
+alias gs='git status'
+alias gprune="git fetch --prune && git branch -vv | grep ': gone]' | awk '{print \$1}' | xargs git branch -D"
+alias dva='direnv allow .'
+alias zrfr='source ~/.zshrc'
+alias dot='git --git-dir=$HOME/.dotfiles --work-tree=$HOME'
+alias zcfg='$EDITOR ~/.config/zsh'
+alias et='exercism test'
+alias es='exercism submit'
+alias phxs='mix phx.server'
+alias iphxs='iex -S mix phx.server'
+alias ydv='yarn run dev'
+alias mixreboot='rm -rf deps .elixir_ls _build mix.lock && mix deps.get && mix setup'

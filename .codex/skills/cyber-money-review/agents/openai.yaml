@@ -1,0 +1,4 @@
+interface:
+  display_name: "Cyber Money Review"
+  short_description: "Review money movement and cyber trust boundaries"
+  default_prompt: "Use $cyber-money-review to review this PR for money-movement and cyber defects."

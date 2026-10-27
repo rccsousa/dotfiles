@@ -1,0 +1,4 @@
+interface:
+  display_name: "Maintainability Review"
+  short_description: "Focused readability and maintainability review"
+  default_prompt: "Use $maintainability-review to review this change for concrete readability and maintenance improvements."

@@ -1,0 +1,16 @@
+# Global ripgrep config — loaded via RIPGREP_CONFIG_PATH (set in ~/.claude/settings.json env).
+# Purpose: keep secrets out of broad/recursive searches so `rg` / `grep` never
+# incidentally surfaces env or key material into the agent's context.
+# Backstops the Read(**/.env*) deny rule, which only guards the Read tool + explicit greps.
+
+--glob=!.env
+--glob=!.env.*
+--glob=!.env*
+--glob=!.envrc
+--glob=!*.envrc
+--glob=!secrets
+--glob=!secrets.*
+--glob=!*.pem
+--glob=!*.key
+--glob=!id_rsa
+--glob=!id_ed25519

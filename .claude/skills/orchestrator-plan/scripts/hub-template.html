@@ -1,0 +1,380 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Plan Hub</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=JetBrains+Mono:wght@400;600&family=Public+Sans:wght@400;600&display=swap">
+<style>
+:root{
+  --bg:#F3F6F4; --surface:#FFFFFF; --ink:#15201C; --muted:#55635D; --rule:#D2DBD6;
+  --accent:#0D6A4E; --accent-soft:#DDEFE7; --money:#B3362B; --money-soft:#F7E1DE;
+  --warn:#9A6200; --warn-soft:#F8ECD3; --info:#2656A3; --info-soft:#E1E9F7;
+  --done:#6B7772; --done-soft:#E7EBE9;
+  --display:"Bricolage Grotesque", "Avenir Next", system-ui, sans-serif;
+  --body:"Public Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono:"JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --bg:#0E1412; --surface:#161F1C; --ink:#E3EBE7; --muted:#95A49E; --rule:#2B3733;
+    --accent:#44C394; --accent-soft:#16352A; --money:#E4705F; --money-soft:#3A1E1A;
+    --warn:#E3A948; --warn-soft:#352812; --info:#86A9EE; --info-soft:#1A2640;
+    --done:#8C9994; --done-soft:#222B28;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#0E1412; --surface:#161F1C; --ink:#E3EBE7; --muted:#95A49E; --rule:#2B3733;
+  --accent:#44C394; --accent-soft:#16352A; --money:#E4705F; --money-soft:#3A1E1A;
+  --warn:#E3A948; --warn-soft:#352812; --info:#86A9EE; --info-soft:#1A2640;
+  --done:#8C9994; --done-soft:#222B28;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.5 var(--body);padding-inline:16px;padding-block:0 64px}
+.wrap{max-width:1440px;margin:0 auto}
+h1,h2,h3{font-family:var(--display);line-height:1.15;margin:0;text-wrap:balance}
+h1{font-size:clamp(26px,3.6vw,36px)}
+h2{font-size:20px}
+h3{font-size:15px}
+a{color:var(--accent)}
+code,.mono{font-family:var(--mono);font-size:.86em}
+.eyebrow{font:600 11px/1 var(--mono);text-transform:uppercase;letter-spacing:.09em;color:var(--muted)}
+header.top{padding-block:32px 16px;display:grid;gap:10px}
+.meta{display:flex;flex-wrap:wrap;gap:6px 16px;font:12px/1.4 var(--mono);color:var(--muted)}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-block:8px 4px}
+.stat{background:var(--surface);border:1px solid var(--rule);border-radius:10px;padding:12px 14px}
+.stat b{display:block;font:700 26px/1.1 var(--display)}
+.stat span{font:12px/1.3 var(--mono);color:var(--muted)}
+.stat.attn b{color:var(--warn)}
+nav.bar{position:sticky;top:0;z-index:5;background:var(--bg);border-block:1px solid var(--rule);padding-block:10px;display:grid;gap:8px}
+.row{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.tabs button,.chip{font:600 12px/1 var(--mono);border:1px solid var(--rule);background:var(--surface);color:var(--muted);padding:7px 10px;border-radius:6px;cursor:pointer;white-space:nowrap}
+.tabs button[aria-selected="true"],.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.chip.plan[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--bg)}
+.lbl{font:600 11px/1 var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-right:4px}
+input[type=search]{font:13px var(--body);padding:7px 10px;border:1px solid var(--rule);border-radius:6px;background:var(--surface);color:var(--ink);min-width:200px;flex:1;max-width:320px}
+label.tog{font:12px var(--mono);color:var(--muted);display:inline-flex;gap:6px;align-items:center;cursor:pointer}
+button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+main{padding-top:20px}
+/* board */
+.board{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(250px,1fr);gap:12px;overflow-x:auto;padding-bottom:12px;align-items:start}
+.col{background:color-mix(in oklab,var(--surface) 55%,var(--bg));border:1px solid var(--rule);border-radius:10px;padding:10px;display:grid;gap:8px;min-height:120px}
+.col h3{display:flex;justify-content:space-between;align-items:center;font:600 12px/1 var(--mono);text-transform:uppercase;letter-spacing:.07em;padding:4px 2px 6px}
+.col h3 .n{color:var(--muted)}
+.lane{font:600 11px/1.2 var(--mono);color:var(--muted);padding:6px 2px 0;border-top:1px dashed var(--rule)}
+.lane:first-of-type{border-top:0}
+.card{background:var(--surface);border:1px solid var(--rule);border-left:4px solid var(--rule);border-radius:8px;padding:9px 10px;display:grid;gap:6px}
+.card.critical{box-shadow:inset 0 0 0 1px var(--accent)}
+.card .top{display:flex;gap:6px;align-items:baseline;flex-wrap:wrap;font:11px/1.2 var(--mono);color:var(--muted)}
+.card .top .id{font-weight:600;color:var(--ink)}
+.card .t{font-size:13px;line-height:1.35}
+.card .tags{display:flex;flex-wrap:wrap;gap:4px}
+.card .note{font-size:12px;color:var(--muted);border-top:1px dashed var(--rule);padding-top:5px}
+.tag{font:600 10px/1.35 var(--mono);padding:3px 6px;border-radius:4px;background:var(--done-soft);color:var(--muted);text-decoration:none}
+.tag.crit{background:var(--accent-soft);color:var(--accent)}
+.tag.money{background:var(--money-soft);color:var(--money)}
+.tag.pr{background:var(--info-soft);color:var(--info)}
+.tag.warn{background:var(--warn-soft);color:var(--warn)}
+/* state encoding: one colour = one meaning */
+.s-todo{border-left-color:var(--rule)}
+.s-running{border-left-color:var(--warn);border-left-style:dashed}
+.s-review{border-left-color:var(--warn)}
+.s-committed{border-left-color:var(--accent)}
+.s-pr-open{border-left-color:var(--info)}
+.s-merged{border-left-color:var(--done);opacity:.75}
+.s-frozen{border-left-color:var(--done);opacity:.6}
+.s-frozen .t{text-decoration:line-through}
+.pill{font:600 10px/1 var(--mono);padding:4px 7px;border-radius:999px;border:1px solid currentColor;text-transform:uppercase;letter-spacing:.05em}
+.p-todo{color:var(--muted)} .p-running,.p-review{color:var(--warn)} .p-committed{color:var(--accent)} .p-pr-open{color:var(--info)} .p-merged,.p-frozen,.p-other{color:var(--done)}
+/* plans */
+.plans{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:12px}
+.plan{background:var(--surface);border:1px solid var(--rule);border-radius:10px;padding:14px;display:grid;gap:10px;align-content:start}
+.plan h3{font-size:16px}
+.bar-stack{display:flex;height:8px;border-radius:4px;overflow:hidden;background:var(--done-soft)}
+.bar-stack i{display:block;height:100%}
+.b-todo{background:var(--rule)} .b-running,.b-review{background:var(--warn)} .b-committed{background:var(--accent)} .b-pr-open{background:var(--info)} .b-merged,.b-frozen,.b-other{background:var(--done)}
+.legend{display:flex;flex-wrap:wrap;gap:10px;font:11px var(--mono);color:var(--muted)}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:4px;vertical-align:-1px}
+.kv{display:flex;flex-wrap:wrap;gap:4px 14px;font:12px/1.4 var(--mono);color:var(--muted)}
+.links{display:flex;flex-wrap:wrap;gap:6px}
+.links a{font:600 12px/1 var(--mono);text-decoration:none;border:1px solid var(--rule);border-radius:6px;padding:7px 9px}
+.links a.primary{background:var(--accent);border-color:var(--accent);color:var(--bg)}
+details.docs summary{cursor:pointer;font:12px var(--mono);color:var(--muted)}
+details.docs ul{margin:6px 0 0;padding-left:18px;font:12px/1.7 var(--mono)}
+/* questions */
+.qs{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:12px}
+.q{background:var(--surface);border:1px solid var(--rule);border-radius:10px;padding:12px 14px;display:grid;gap:6px}
+.q.me{border-color:var(--warn);background:linear-gradient(var(--warn-soft),var(--warn-soft)) top/100% 3px no-repeat,var(--surface)}
+.q p{margin:0;font-size:13px}
+.empty{color:var(--muted);font:13px var(--mono);padding:24px;text-align:center;border:1px dashed var(--rule);border-radius:10px}
+.section-h{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.live-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--accent);margin-right:6px;vertical-align:1px}
+.meta .chip{padding:4px 8px}
+footer{margin-top:40px;color:var(--muted);font:12px/1.5 var(--mono)}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="top">
+  <span class="eyebrow">Orchestrator plans · every project on this machine</span>
+  <h1>Plan Hub</h1>
+  <div class="meta" id="meta"></div>
+  <div class="stats" id="stats"></div>
+</header>
+<nav class="bar" aria-label="Hub controls">
+  <div class="row">
+    <div class="row tabs" role="tablist">
+      <button role="tab" data-tab="board">Board</button>
+      <button role="tab" data-tab="plans">Plans</button>
+      <button role="tab" data-tab="questions">Open questions</button>
+    </div>
+    <input type="search" id="q" placeholder="Filter slices, tickets, questions…" aria-label="Filter">
+    <label class="tog"><input type="checkbox" id="hideDone"> hide merged/frozen</label>
+    <label class="tog"><input type="checkbox" id="lanes"> lanes by plan</label>
+  </div>
+  <div class="row" id="projChips"><span class="lbl">Project</span></div>
+  <div class="row" id="planChips"><span class="lbl">Plan</span></div>
+</nav>
+<main>
+  <section id="tab-board" role="tabpanel">
+    <div class="legend" style="margin-bottom:10px">
+      <span><i style="background:var(--rule)"></i>todo</span>
+      <span><i style="background:var(--warn)"></i>running / review</span>
+      <span><i style="background:var(--accent)"></i>committed</span>
+      <span><i style="background:var(--info)"></i>PR open</span>
+      <span><i style="background:var(--done)"></i>merged / frozen</span>
+      <span><span class="tag crit">critical</span> on critical path</span>
+      <span><span class="tag money">money</span> moves money</span>
+    </div>
+    <div class="board" id="board"></div>
+  </section>
+  <section id="tab-plans" role="tabpanel" hidden>
+    <div class="plans" id="plans"></div>
+  </section>
+  <section id="tab-questions" role="tabpanel" hidden>
+    <div class="section-h"><p class="mono" style="color:var(--muted);margin:0" id="qsIntro">Unresolved <code>open</code> entries from every plan. Amber = waiting on you.</p><div class="row" id="ownerChips"></div></div>
+    <div class="qs" id="qs"></div>
+  </section>
+  <footer id="foot"></footer>
+</main>
+</div>
+<script>
+let DATA = /*__HUB_DATA__*/null;
+const SERVED = /*__HUB_SERVED__*/false;
+const COLS = ["todo","running","review","committed","pr-open","merged","frozen"];
+const DONE = new Set(["merged","frozen"]);
+const ME = new Set(["rui","me"]);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const file = p => SERVED ? "/f?p=" + encodeURIComponent(p) : "file://" + encodeURI(p);
+const ago = iso => { const d = (Date.now() - new Date(iso)) / 864e5; return isNaN(d) ? iso : d < 1 ? "today" : d < 2 ? "yesterday" : Math.floor(d) + "d ago"; };
+const stale = iso => (Date.now() - new Date(iso)) / 864e5 > 3;
+const col = s => COLS.includes(s) ? s : "other";
+
+const store = { get(k, d){ try { const v = localStorage.getItem("planhub:" + k); return v == null ? d : JSON.parse(v); } catch { return d; } },
+                set(k, v){ try { localStorage.setItem("planhub:" + k, JSON.stringify(v)); } catch {} } };
+const st = { tab: store.get("tab","board"), projects: new Set(store.get("projects",[])), plans: new Set(store.get("plans",[])),
+             owner: store.get("owner","all"), hideDone: store.get("hideDone",false), lanes: store.get("lanes",false), q: "" };
+const save = () => { store.set("tab", st.tab); store.set("projects", [...st.projects]); store.set("plans", [...st.plans]); store.set("owner", st.owner); store.set("hideDone", st.hideDone); store.set("lanes", st.lanes); };
+
+let planByKey = {};
+const index = () => { planByKey = Object.fromEntries(DATA.plans.map(p => [p.key, p])); };
+index();
+// yaml state vs GitHub; the yaml stays the source of truth, drift is flagged, never written back
+const drift = (state, live) => {
+  if (!live) return null;
+  if (live.state === "MERGED" && state !== "merged") return "gh: merged";
+  if (live.state === "CLOSED") return "gh: closed";
+  if (live.state === "OPEN" && ["merged","todo","running"].includes(state)) return "gh: open";
+  return null;
+};
+const CHECK = { SUCCESS: "✓", FAILURE: "✗", ERROR: "✗", PENDING: "…", EXPECTED: "…" };
+const liveTag = (n, url, live) => {
+  if (!live) return url ? `<a class="tag pr" href="${esc(url)}">#${n}</a>` : `<span class="tag pr">#${n}</span>`;
+  const bits = [live.state.toLowerCase(), live.draft && "draft", live.checks && "checks " + (CHECK[live.checks] ?? live.checks.toLowerCase()),
+    live.state === "OPEN" && live.merge && live.merge.toLowerCase(), live.review && live.review.toLowerCase().replace(/_/g, " ")].filter(Boolean);
+  const bad = live.checks === "FAILURE" || live.checks === "ERROR" || live.merge === "DIRTY" || live.review === "CHANGES_REQUESTED";
+  return `<a class="tag ${bad ? "warn" : "pr"}" href="${esc(live.url)}" title="live from GitHub">#${n} · ${esc(bits.join(" · "))}</a>`;
+};
+const inScope = (project, plan) => (!st.projects.size || st.projects.has(project)) && (!st.plans.size || st.plans.has(project + "/" + plan));
+const match = (...xs) => !st.q || xs.join(" ").toLowerCase().includes(st.q);
+
+function header(){
+  const active = DATA.plans.filter(p => Object.keys(p.states).some(s => !DONE.has(s)));
+  const running = DATA.cards.filter(c => ["running","review"].includes(c.state)).length;
+  const prs = DATA.prChecked ? DATA.cards.filter(c => c.live?.state === "OPEN").length : DATA.cards.filter(c => c.state === "pr-open").length;
+  const drifts = DATA.cards.filter(c => drift(c.state, c.live)).length;
+  const mineAll = DATA.questions.filter(q => ME.has(String(q.owner).toLowerCase()));
+  const mine = mineAll.filter(q => !q.answer).length;
+  const pending = DATA.questions.filter(q => q.answer).length;
+  document.getElementById("meta").innerHTML = [
+    SERVED ? `<span class="live-dot" title="auto-updates when a plan changes"></span>live · ${new Date(DATA.built).toLocaleTimeString()}` : `built ${new Date(DATA.built).toLocaleString()}`,
+    DATA.prError ? `<span style="color:var(--warn)">PR check failed: ${esc(DATA.prError)}</span>` : DATA.prChecked ? `PRs checked ${new Date(DATA.prChecked).toLocaleTimeString()}` : "PRs not checked",
+    SERVED ? `<button class="chip" id="refreshPr">refresh PRs</button>` : "",
+    `roots: ${DATA.roots.map(r => esc(r.replace(/^\/Users\/[^/]+/, "~"))).join(", ")}`,
+    SERVED ? "" : `live: <a href="http://127.0.0.1:4747">127.0.0.1:4747</a>`].filter(Boolean).map(s => `<span>${s}</span>`).join("");
+  document.getElementById("stats").innerHTML = [
+    [DATA.projects.length, "projects"], [active.length, "active plans"], [running, "slices running / in review"],
+    [prs, DATA.prChecked ? "PRs open (live)" : "PRs open (yaml)"], [drifts, "yaml ≠ GitHub", drifts ? "attn" : ""], [mine, "questions waiting on you", mine ? "attn" : ""], [pending, "answered, not applied yet"]]
+    .map(([n, l, c]) => `<div class="stat ${c||""}"><b>${n}</b><span>${l}</span></div>`).join("");
+}
+
+function chips(){
+  const pc = document.getElementById("projChips");
+  pc.innerHTML = `<span class="lbl">Project</span>` + DATA.projects.map(p =>
+    `<button class="chip" data-proj="${esc(p.name)}" aria-pressed="${st.projects.has(p.name)}">${esc(p.name)} · ${p.plans.length}</button>`).join("");
+  const plc = document.getElementById("planChips");
+  const visible = DATA.plans.filter(p => !st.projects.size || st.projects.has(p.project));
+  plc.innerHTML = `<span class="lbl">Plan</span>` + visible.map(p =>
+    `<button class="chip plan" data-plan="${esc(p.key)}" aria-pressed="${st.plans.has(p.key)}" title="${esc(p.title)}">${esc(p.slug)}</button>`).join("");
+  plc.hidden = !visible.length;
+}
+
+function cardHtml(c){
+  const p = planByKey[c.project + "/" + c.plan];
+  const tags = [
+    c.critical && `<span class="tag crit">critical</span>`,
+    c.money && `<span class="tag money">money</span>`,
+    c.pr && liveTag(c.pr, c.prUrl, c.live),
+    drift(c.state, c.live) && `<span class="tag warn" title="yaml says ${esc(c.state)}">${esc(drift(c.state, c.live))}</span>`,
+    c.effort && `<span class="tag">${esc(c.effort)}</span>`,
+    c.loc && `<span class="tag">+${c.loc[0]}–${c.loc[1]}</span>`,
+    c.needs?.length && `<span class="tag" title="needs">⟵ ${esc(c.needs.join(", "))}</span>`,
+    col(c.state) === "other" && `<span class="tag warn">${esc(c.state)}</span>`,
+  ].filter(Boolean).join("");
+  return `<article class="card s-${esc(col(c.state))} ${c.critical ? "critical" : ""}">
+    <div class="top"><span class="id">${esc(c.id)}</span><a href="${p?.humanView ? file(p.humanView) : "#"}" title="${esc(p?.title)}">${esc(c.plan)}</a><span>${esc(c.project)}</span>${c.ticket ? `<span>${esc(c.ticket)}</span>` : ""}${c.wave != null ? `<span>w${c.wave}</span>` : ""}</div>
+    <div class="t">${esc(c.title)}</div>
+    ${tags ? `<div class="tags">${tags}</div>` : ""}
+    ${c.note ? `<div class="note">${esc(c.note)}</div>` : ""}
+  </article>`;
+}
+
+function board(){
+  const cards = DATA.cards.filter(c => inScope(c.project, c.plan) && match(c.id, c.title, c.ticket, c.plan, c.note));
+  const cols = [...COLS, "other"].filter(s => !(st.hideDone && DONE.has(s)));
+  const el = document.getElementById("board");
+  el.innerHTML = cols.map(s => {
+    const cs = cards.filter(c => col(c.state) === s);
+    if (s === "other" && !cs.length) return "";
+    let body;
+    if (!cs.length) body = `<div class="empty" style="padding:12px">—</div>`;
+    else if (st.lanes) {
+      const groups = {}; cs.forEach(c => (groups[c.project + "/" + c.plan] ??= []).push(c));
+      body = Object.entries(groups).map(([k, g]) => `<div class="lane">${esc(k)}</div>` + g.map(cardHtml).join("")).join("");
+    } else body = cs.map(cardHtml).join("");
+    return `<div class="col" aria-label="${s}"><h3><span class="pill p-${s}">${s}</span><span class="n">${cs.length}</span></h3>${body}</div>`;
+  }).join("");
+  if (!cards.length) el.innerHTML = `<div class="empty">No slices match.</div>`;
+}
+
+function plans(){
+  const ps = DATA.plans.filter(p => inScope(p.project, p.slug) && match(p.title, p.slug, p.parent, p.project));
+  const el = document.getElementById("plans");
+  el.innerHTML = ps.map(p => {
+    const total = p.slices || 1;
+    const segs = [...COLS, "other"].map(s => {
+      const n = s === "other" ? Object.entries(p.states).filter(([k]) => !COLS.includes(k)).reduce((a, [, v]) => a + v, 0) : (p.states[s] ?? 0);
+      return n ? `<i class="b-${s}" style="width:${n / total * 100}%" title="${s}: ${n}"></i>` : "";
+    }).join("");
+    const counts = Object.entries(p.states).map(([k, v]) => `${v} ${k}`).join(" · ");
+    const docs = p.docs.filter(d => d.path !== p.humanView);
+    return `<article class="plan">
+      <div class="row" style="justify-content:space-between"><span class="eyebrow">${esc(p.project)}${p.parent ? " · " + esc(p.parent) : ""}${p.worktree ? " · wt " + esc(p.worktree) : ""}</span>
+        ${p.mode ? `<span class="tag">${esc(p.mode)}</span>` : `<span class="tag warn">mode unset</span>`}</div>
+      <h3>${esc(p.title)}</h3>
+      <div class="bar-stack" role="img" aria-label="${esc(counts)}">${segs}</div>
+      <div class="kv"><span>${esc(p.slug)}</span><span>${p.slices} slices</span><span>${counts}</span></div>
+      <div class="kv"><span ${stale(p.updated) ? 'style="color:var(--warn)"' : ""}>updated ${esc(ago(p.updated))}</span><span>${p.decisions} decisions</span>
+        <span ${p.openQs ? 'style="color:var(--warn)"' : ""}>${p.openQs} open Qs</span>
+        ${p.answered ? `<span style="color:var(--accent)">${p.answered} answered, not applied</span>` : ""}
+        ${p.story ? `<span>story ${p.story.done}/${p.story.total} commits</span>` : ""}
+        ${p.spike?.head ? `<span>spike ${esc(p.spike.head)}</span>` : ""}</div>
+      <div class="links">
+        ${p.humanView ? `<a class="primary" href="${file(p.humanView)}">Open plan page</a>` : `<span class="tag warn">no HTML view</span>`}
+        ${p.published ? `<a href="${esc(p.published)}">published</a>` : ""}
+        ${p.pr ? liveTag(p.pr, p.prUrl, p.live) : ""}
+        <a href="${file(p.yaml)}">plan.yaml</a>
+      </div>
+      ${docs.length ? `<details class="docs"><summary>${docs.length} handoff docs</summary><ul>${docs.map(d => `<li><a href="${file(d.path)}">${esc(d.name)}</a></li>`).join("")}</ul></details>` : ""}
+    </article>`;
+  }).join("") || `<div class="empty">No plans match.</div>`;
+  const loose = DATA.projects.filter(p => !st.projects.size || st.projects.has(p.name)).flatMap(p => p.looseDocs.map(d => ({ ...d, project: p.name })));
+  if (loose.length) el.insertAdjacentHTML("beforeend", `<article class="plan"><span class="eyebrow">Other HTML pages</span><h3>Pages without a plan.yaml</h3>
+    <ul class="mono" style="margin:0;padding-left:18px;line-height:1.8">${loose.map(d => `<li><a href="${file(d.path)}">${esc(d.name)}</a> · ${esc(d.project)}</li>`).join("")}</ul></article>`);
+}
+
+const rank = q => ME.has(String(q.owner).toLowerCase()) ? (q.answer ? 1 : 0) : 2;
+function questions(){
+  const qsEl = document.getElementById("qs");
+  const drafts = {};
+  qsEl.querySelectorAll(".hub-ans textarea").forEach(t => { const b = t.closest(".hub-ans"); drafts[b.dataset.plan + "#" + b.dataset.q] = { v: t.value, focus: t === document.activeElement, edit: b.dataset.editing }; });
+  const owners = [...new Set(DATA.questions.map(q => String(q.owner)))].sort();
+  document.getElementById("ownerChips").innerHTML = `<span class="lbl">Owner</span>` + ["all", ...owners].map(o =>
+    `<button class="chip" data-owner="${esc(o)}" aria-pressed="${st.owner === o}">${esc(o)}</button>`).join("");
+  const qs = DATA.questions.filter(q => inScope(q.project, q.plan) && (st.owner === "all" || String(q.owner) === st.owner) && match(q.id, q.title, q.ask, q.owner))
+    .sort((a, b) => rank(a) - rank(b));
+  document.getElementById("qs").innerHTML = qs.map(q => {
+    const p = planByKey[q.key];
+    return `<article class="q ${ME.has(String(q.owner).toLowerCase()) && !q.answer ? "me" : ""}" data-q="${esc(q.id)}" data-plan="${esc(q.key)}">
+      <span class="eyebrow">${esc(q.owner)} · ${esc(q.id)} · <a href="${p?.humanView ? file(p.humanView) + "#open" : "#"}">${esc(q.plan)}</a></span>
+      ${q.title ? `<h3>${esc(q.title)}</h3>` : ""}
+      <p>${esc(q.ask)}</p>
+      ${q.blocks?.length ? `<div class="tags">${q.blocks.map(b => `<span class="tag warn">blocks ${esc(b)}</span>`).join(" ")}</div>` : ""}
+    </article>`;
+  }).join("") || `<div class="empty">Nothing open.</div>`;
+  if (!SERVED || !window.PlanHubAnswers) return;
+  PlanHubAnswers.setData(DATA);
+  PlanHubAnswers.attach(qsEl).then(() => {
+    for (const [k, d] of Object.entries(drafts)) {
+      const [plan, q] = [k.slice(0, k.lastIndexOf("#")), k.slice(k.lastIndexOf("#") + 1)];
+      const box = [...qsEl.querySelectorAll(".hub-ans")].find(b => b.dataset.plan === plan && b.dataset.q === q);
+      if (!box) continue;
+      if (d.edit === "1" && !box.querySelector("textarea")) box.querySelector('[data-act="edit"]')?.click();
+      const t = box.querySelector("textarea"); if (!t) continue;
+      t.value = d.v; if (d.focus) t.focus();
+    }
+  });
+}
+
+function render(){
+  document.querySelectorAll("[role=tab]").forEach(b => b.setAttribute("aria-selected", b.dataset.tab === st.tab));
+  document.querySelectorAll("[role=tabpanel]").forEach(p => p.hidden = p.id !== "tab-" + st.tab);
+  document.getElementById("hideDone").checked = st.hideDone;
+  document.getElementById("lanes").checked = st.lanes;
+  chips(); board(); plans(); questions(); save();
+}
+
+document.addEventListener("click", e => {
+  const t = e.target.closest("button"); if (!t) return;
+  if (t.dataset.tab) st.tab = t.dataset.tab;
+  else if (t.dataset.proj) { st.projects.has(t.dataset.proj) ? st.projects.delete(t.dataset.proj) : st.projects.add(t.dataset.proj); st.plans.clear(); }
+  else if (t.dataset.plan) st.plans.has(t.dataset.plan) ? st.plans.delete(t.dataset.plan) : st.plans.add(t.dataset.plan);
+  else if (t.dataset.owner) st.owner = t.dataset.owner;
+  else return;
+  render();
+});
+document.getElementById("q").addEventListener("input", e => { st.q = e.target.value.trim().toLowerCase(); board(); plans(); questions(); });
+document.getElementById("hideDone").addEventListener("change", e => { st.hideDone = e.target.checked; render(); });
+document.getElementById("lanes").addEventListener("change", e => { st.lanes = e.target.checked; render(); });
+document.getElementById("foot").textContent = `Read-only view. State lives in each project's .claude/handoffs/<slug>.plan.yaml; edit the yaml and the hub follows. ${DATA.plans.length} plans, ${DATA.cards.length} slices.`;
+document.addEventListener("click", async e => {
+  if (e.target.id !== "refreshPr") return;
+  e.target.textContent = "checking…"; e.target.disabled = true;
+  try { await fetch("/refresh-pr", { method: "POST" }); } catch {}
+});
+async function reload(){
+  try { DATA = await (await fetch("/data.json", { cache: "no-store" })).json(); index(); header(); render(); } catch {}
+}
+if (SERVED) {
+  const es = new EventSource("/events"); es.onmessage = reload;
+  const kit = document.createElement("script"); kit.src = "/answer-kit.js"; kit.onload = () => questions(); document.head.appendChild(kit);
+  document.getElementById("qsIntro").insertAdjacentHTML("beforeend", " Answer inline; answers land in <code>&lt;slug&gt;.answers.yaml</code> until an orchestrator applies them.");
+} else document.getElementById("qsIntro").insertAdjacentHTML("beforeend", ` To answer, open the live hub: <a href="http://127.0.0.1:4747">127.0.0.1:4747</a>.`);
+header(); render();
+</script>
+</body>
+</html>

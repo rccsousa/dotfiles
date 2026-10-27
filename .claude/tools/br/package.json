@@ -1,0 +1,6 @@
+{
+  "name": "br",
+  "private": true,
+  "type": "module",
+  "devDependencies": { "@types/bun": "latest" }
+}

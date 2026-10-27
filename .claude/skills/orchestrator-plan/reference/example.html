@@ -1,0 +1,539 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Order Import Plan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=JetBrains+Mono:wght@400;600&family=Public+Sans:ital,wght@0,400;0,600;1,400&display=swap">
+<style>
+:root{
+  --bg:#F3F6F4; --surface:#FFFFFF; --ink:#15201C; --muted:#55635D; --rule:#D2DBD6;
+  --accent:#0D6A4E; --accent-soft:#DDEFE7; --src:#B3362B; --src-soft:#F7E1DE;
+  --warn:#9A6200; --warn-soft:#F8ECD3; --info:#2656A3; --info-soft:#E1E9F7;
+  --done:#6B7772; --done-soft:#E7EBE9; --eli:#FBF6E4; --eli-rule:#E4D7A8;
+  --display:"Bricolage Grotesque", "Avenir Next", system-ui, sans-serif;
+  --body:"Public Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono:"JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --bg:#0E1412; --surface:#161F1C; --ink:#E3EBE7; --muted:#95A49E; --rule:#2B3733;
+    --accent:#44C394; --accent-soft:#16352A; --src:#E4705F; --src-soft:#3A1E1A;
+    --warn:#E3A948; --warn-soft:#352812; --info:#86A9EE; --info-soft:#1A2640;
+    --done:#8C9994; --done-soft:#222B28; --eli:#231F12; --eli-rule:#4A4122;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#0E1412; --surface:#161F1C; --ink:#E3EBE7; --muted:#95A49E; --rule:#2B3733;
+  --accent:#44C394; --accent-soft:#16352A; --src:#E4705F; --src-soft:#3A1E1A;
+  --warn:#E3A948; --warn-soft:#352812; --info:#86A9EE; --info-soft:#1A2640;
+  --done:#8C9994; --done-soft:#222B28; --eli:#231F12; --eli-rule:#4A4122;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.6 var(--body);padding-inline:16px;padding-block:0 64px}
+.wrap{max-width:1040px;margin:0 auto}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;line-height:1.15;margin:0}
+h1{font-size:clamp(28px,4.2vw,40px);letter-spacing:-.01em}
+h2{font-size:24px}
+h3{font-size:17px}
+p{margin:0;max-width:68ch}
+code,.mono{font-family:var(--mono);font-size:.86em}
+a{color:var(--accent)}
+.eyebrow{font:600 11px/1 var(--mono);text-transform:uppercase;letter-spacing:.09em;color:var(--muted)}
+header.top{padding-block:40px 20px;display:grid;gap:14px;border-bottom:1px solid var(--rule)}
+header.top .lede{color:var(--muted);font-size:16px}
+.meta{display:flex;flex-wrap:wrap;gap:8px 18px;font:12px/1.4 var(--mono);color:var(--muted)}
+nav.toc{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);border-bottom:1px solid var(--rule);display:flex;gap:6px;align-items:center;padding-block:10px;overflow-x:auto}
+nav.toc a{font:600 12px/1 var(--mono);text-decoration:none;color:var(--muted);padding:7px 10px;border-radius:6px;white-space:nowrap}
+nav.toc a:hover,nav.toc a:focus-visible{color:var(--ink);background:var(--surface)}
+nav.toc .spacer{flex:1}
+button.eli-toggle{font:600 12px/1 var(--mono);border:1px solid var(--eli-rule);background:var(--eli);color:var(--ink);padding:8px 12px;border-radius:6px;cursor:pointer;white-space:nowrap}
+button.eli-toggle[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+button:focus-visible,summary:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+section{padding-block:44px 8px;display:grid;gap:18px;scroll-margin-top:56px}
+.sec-head{display:grid;gap:6px}
+.sec-head p{color:var(--muted)}
+figure{margin:0;background:var(--surface);border:1px solid var(--rule);border-radius:10px;padding:18px;display:grid;gap:12px}
+figure .scroll{overflow-x:auto}
+figure svg{display:block;width:100%;min-width:760px;height:auto;color:var(--ink)}
+figcaption{font-size:13px;color:var(--muted);max-width:80ch}
+.legend{display:flex;flex-wrap:wrap;gap:8px 16px;font:12px/1.3 var(--mono);color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.sw{width:14px;height:10px;border-radius:3px;border:1.5px solid}
+/* svg classes */
+.n-merged{fill:var(--done-soft);stroke:var(--done)}
+.n-open{fill:var(--info-soft);stroke:var(--info)}
+.n-done{fill:var(--accent-soft);stroke:var(--accent)}
+.n-run{fill:var(--warn-soft);stroke:var(--warn);stroke-dasharray:5 3}
+.n-todo{fill:var(--surface);stroke:var(--rule)}
+.n-plain{fill:var(--surface);stroke:currentColor;stroke-opacity:.35}
+.n-hot{fill:var(--accent-soft);stroke:var(--accent)}
+.n-src{fill:var(--src-soft);stroke:var(--src)}
+.n-zone{fill:none;stroke:currentColor;stroke-opacity:.35;stroke-dasharray:4 4}
+.e{fill:none;stroke:currentColor;stroke-opacity:.45;stroke-width:1.4}
+.e-crit{fill:none;stroke:var(--accent);stroke-width:2.4}
+.e-src{fill:none;stroke:var(--src);stroke-width:2}
+.e-dash{stroke-dasharray:5 4}
+.t{fill:currentColor;font-family:var(--body);font-size:12px}
+.t-id{fill:currentColor;font:700 13px var(--mono)}
+.t-sub{fill:currentColor;fill-opacity:.7;font:10.5px var(--mono)}
+.t-lab{fill:currentColor;fill-opacity:.75;font:11px var(--mono)}
+.t-acc{fill:var(--accent)}
+.t-src{fill:var(--src)}
+.t-warn{fill:var(--warn)}
+.mk-acc{fill:var(--accent)} .mk{fill:currentColor;fill-opacity:.55} .mk-src{fill:var(--src)}
+/* ELI5 */
+details.eli5{background:var(--eli);border:1px dashed var(--eli-rule);border-radius:10px;padding:0 16px}
+details.eli5 summary{cursor:pointer;list-style:none;display:flex;gap:10px;align-items:baseline;padding-block:12px;font-weight:600}
+details.eli5 summary::-webkit-details-marker{display:none}
+details.eli5 summary .tag{font:700 11px/1 var(--mono);letter-spacing:.08em;background:var(--ink);color:var(--eli);padding:4px 6px;border-radius:4px}
+details.eli5 summary .hint{margin-left:auto;font:12px var(--mono);color:var(--muted)}
+details.eli5[open] summary .hint::after{content:"hide"} details.eli5:not([open]) summary .hint::after{content:"explain"}
+details.eli5 .body{padding-bottom:16px;display:grid;gap:10px}
+details.eli5 .body p{max-width:70ch}
+details.eli5 .why{font-size:13px;color:var(--muted)}
+/* status */
+.board{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px}
+.stat{background:var(--surface);border:1px solid var(--rule);border-radius:10px;padding:14px 16px;display:grid;gap:6px;align-content:start}
+.stat .big{font:700 26px/1 var(--display)}
+.stat p{font-size:13px;color:var(--muted)}
+.pill{display:inline-block;font:600 11px/1 var(--mono);padding:4px 7px;border-radius:999px;border:1px solid;white-space:nowrap}
+.p-open{color:var(--info);background:var(--info-soft);border-color:var(--info)}
+.p-done{color:var(--accent);background:var(--accent-soft);border-color:var(--accent)}
+.p-run{color:var(--warn);background:var(--warn-soft);border-color:var(--warn)}
+.p-todo{color:var(--muted);background:transparent;border-color:var(--rule)}
+.p-merged{color:var(--done);background:var(--done-soft);border-color:var(--done)}
+.p-src{color:var(--src);background:var(--src-soft);border-color:var(--src)}
+.tbl{overflow-x:auto;background:var(--surface);border:1px solid var(--rule);border-radius:10px}
+table{border-collapse:collapse;width:100%;font-size:13.5px;min-width:720px}
+th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--rule);vertical-align:top}
+th{font:600 11px/1.3 var(--mono);text-transform:uppercase;letter-spacing:.06em;color:var(--muted);background:var(--bg)}
+tr:last-child td{border-bottom:0}
+td.num{font-variant-numeric:tabular-nums;font-family:var(--mono);font-size:12.5px;white-space:nowrap}
+td .id{font:700 13px var(--mono)}
+.callout{border-left:3px solid var(--warn);background:var(--surface);padding:12px 16px;border-radius:0 8px 8px 0;display:grid;gap:6px}
+.callout.ok{border-left-color:var(--accent)}
+.two{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px}
+.card{background:var(--surface);border:1px solid var(--rule);border-radius:10px;padding:16px;display:grid;gap:8px;align-content:start}
+.card ul{margin:0;padding-left:18px;display:grid;gap:5px;font-size:14px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chips button{font:600 12px/1 var(--mono);padding:7px 10px;border-radius:6px;border:1px solid var(--rule);background:var(--surface);color:var(--muted);cursor:pointer}
+.chips button[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.dec{display:grid;gap:8px}
+.dec article{background:var(--surface);border:1px solid var(--rule);border-radius:8px;padding:10px 14px;display:grid;grid-template-columns:48px 1fr;gap:4px 12px}
+.dec article .k{font:700 13px var(--mono);color:var(--accent);grid-row:span 2}
+.dec article .w{font-size:14px}
+.dec article .b{font-size:12px;color:var(--muted);font-family:var(--mono)}
+.dec article.rev .k{color:var(--muted);text-decoration:line-through}
+footer{margin-top:48px;padding-top:16px;border-top:1px solid var(--rule);font:12px/1.6 var(--mono);color:var(--muted)}
+@media (max-width:640px){ .dec article{grid-template-columns:40px 1fr} section{padding-block:32px 4px} }
+@media (prefers-reduced-motion:no-preference){ details.eli5 .body{animation:fade .18s ease-out} @keyframes fade{from{opacity:.4}to{opacity:1}} }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+<header class="top">
+  <span class="eyebrow">Orchestrator plan · PROJ-100 · app</span>
+  <h1>Bulk order import from CSV, in production</h1>
+  <p class="lede">A merchant uploads a CSV of orders. We parse it, validate every row, stage the valid ones, and commit them as real orders in one pass, then tell the merchant what landed and what didn't. This page covers 11 tickets, the order they ship in, and the decisions behind them.</p>
+  <div class="meta">
+    <span>source: .claude/handoffs/order-import-ORCHESTRATOR.md</span>
+    <span>plan written 2026-01-12 · resume state 2026-01-14 15:30</span>
+    <span>PR states checked live 2026-01-14</span>
+  </div>
+</header>
+
+<nav class="toc" aria-label="Sections">
+  <a href="#status">Status</a><a href="#flow">Flow</a><a href="#waves">Waves</a><a href="#ship">Shipping</a><a href="#prs">PRs</a><a href="#decisions">Decisions</a><a href="#open">Open</a><a href="#dispatch">Dispatch</a><a href="#rules">Guardrails</a>
+  <span class="spacer"></span>
+  <button class="eli-toggle" id="eli-all" aria-pressed="false" type="button">ELI5: show all</button>
+</nav>
+
+<!-- STATUS -->
+<section id="status">
+  <div class="sec-head"><span class="eyebrow">Where we are</span><h2>Status</h2></div>
+  <div class="board">
+    <div class="stat"><span class="eyebrow">Wave 0</span><span class="big">Cleared</span><p>#201 and #202 are merged. #195 is closed and no longer needed (D9).</p></div>
+    <div class="stat"><span class="eyebrow">Open PRs · awaiting review</span><span class="big">4</span><p>#203 ADR · stack #204 → #205 · #206 B2. #205 is <span class="pill p-run">UNSTABLE</span>, so check CI before calling it ready.</p></div>
+    <div class="stat"><span class="eyebrow">Mega PR · not pushed</span><span class="big">1 / 6</span><p>03 is committed (<code>a1b2c3d4</code>). 04 is being implemented. Next: 05 ∥ 06, then 07, B1, 08.</p></div>
+    <div class="stat"><span class="eyebrow">Waiting on</span><span class="big">Team + Product</span><p>Team: sync or background commit (ADR-0012 open item). Product: Q-A, Q-B.</p></div>
+  </div>
+  <details class="eli5">
+    <summary><span class="tag">ELI5</span>What are we building, in one breath? <span class="hint"></span></summary>
+    <div class="body">
+      <p>A shop owner has a spreadsheet with hundreds of orders and doesn't want to type them in one by one. They upload the file, we check every line, and the good lines become real orders all at once.</p>
+      <p>Every line has to land exactly once. We can't create an order twice, drop one silently, or half-import a file. Most of the work in this plan is that bookkeeping.</p>
+    </div>
+  </details>
+</section>
+
+<!-- FLOW -->
+<section id="flow">
+  <div class="sec-head"><span class="eyebrow">The contract · import guide (#180)</span><h2>One import, four steps</h2>
+  <p>The guide is the source of truth. Where it disagrees with ADR-0010 or the PRD, the guide wins and ADR-0012 records the difference.</p></div>
+  <figure>
+    <div class="scroll">
+    <svg viewBox="0 0 1000 270" role="img" aria-label="An import moves through five states in four steps. Step 3 is the only one that writes orders, and it completes only when every staged row is committed and the stock check has passed.">
+      <defs>
+        <marker id="fa" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" class="mk"/></marker>
+        <marker id="fa-acc" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" class="mk-acc"/></marker>
+      </defs>
+      <!-- intake zone -->
+      <rect x="8" y="62" width="364" height="96" rx="10" class="n-zone"/>
+      <text x="18" y="56" class="t-lab">INTAKE · no side effects</text>
+      <rect x="20" y="80" width="140" height="62" rx="8" class="n-src"/>
+      <text x="90" y="106" text-anchor="middle" class="t-id t-src">CSV</text>
+      <text x="90" y="124" text-anchor="middle" class="t-sub">uploaded file</text>
+      <rect x="220" y="80" width="140" height="62" rx="8" class="n-plain"/>
+      <text x="290" y="106" text-anchor="middle" class="t-id">Parsed rows</text>
+      <text x="290" y="124" text-anchor="middle" class="t-sub">after parsing</text>
+      <rect x="430" y="80" width="140" height="62" rx="8" class="n-plain"/>
+      <text x="500" y="106" text-anchor="middle" class="t-id">Staging</text>
+      <text x="500" y="124" text-anchor="middle" class="t-sub">valid rows only</text>
+      <rect x="640" y="80" width="140" height="62" rx="8" class="n-plain"/>
+      <text x="710" y="106" text-anchor="middle" class="t-id">Orders</text>
+      <text x="710" y="124" text-anchor="middle" class="t-sub">committed (D3)</text>
+      <rect x="850" y="80" width="140" height="62" rx="8" class="n-hot"/>
+      <text x="920" y="106" text-anchor="middle" class="t-id t-acc">Merchant</text>
+      <text x="920" y="124" text-anchor="middle" class="t-sub">import report</text>
+      <!-- arrows -->
+      <line x1="160" y1="111" x2="218" y2="111" class="e" marker-end="url(#fa)"/>
+      <line x1="360" y1="111" x2="428" y2="111" class="e" marker-end="url(#fa)"/>
+      <line x1="570" y1="111" x2="638" y2="111" class="e-crit" marker-end="url(#fa-acc)"/>
+      <line x1="780" y1="111" x2="848" y2="111" class="e" marker-end="url(#fa)"/>
+      <!-- step labels above -->
+      <text x="190" y="30" text-anchor="middle" class="t-id">1 parse</text>
+      <text x="395" y="30" text-anchor="middle" class="t-id">2 validate</text>
+      <text x="605" y="30" text-anchor="middle" class="t-id t-acc">3 commit</text>
+      <text x="815" y="30" text-anchor="middle" class="t-id">4 notify</text>
+      <!-- detail rows below -->
+      <text x="10" y="186" class="t-lab">EXECUTOR</text>
+      <text x="10" y="210" class="t-lab">TRIGGERED BY</text>
+      <text x="10" y="234" class="t-lab">DONE WHEN</text>
+      <g class="t" text-anchor="middle">
+        <text x="190" y="186">worker</text><text x="190" y="210">upload</text><text x="190" y="234">rows parsed</text>
+        <text x="395" y="186">worker</text><text x="395" y="210">parse done</text><text x="395" y="234">every row</text><text x="395" y="250">has a verdict</text>
+        <text x="605" y="186">worker</text><text x="605" y="210" class="t-acc" font-weight="700">merchant</text><text x="605" y="234" class="t-acc">rows committed AND</text><text x="605" y="250" class="t-acc">stock check passed</text>
+        <text x="815" y="186">mailer</text><text x="815" y="210">commit done</text><text x="815" y="234">report sent</text>
+      </g>
+    </svg>
+    </div>
+    <figcaption>Steps 1 and 2 have no side effects, and step 4 only sends a report. Step 3 is the one the merchant confirms, and it completes only when two independent facts are both true. Rejected rows are reported, never silently dropped.</figcaption>
+  </figure>
+  <details class="eli5">
+    <summary><span class="tag">ELI5</span>Why is step 3 the scary one? <span class="hint"></span></summary>
+    <div class="body">
+      <p>Steps 1 and 2 are like reading a shopping list and crossing out lines you can't read. Nothing has happened yet. Step 3 is going to the till: once an order exists, a warehouse may start packing it.</p>
+      <p>So we wait for two things: every staged row is written, and stock is reserved for all of them. Either can finish first, and we must end up in the same place either way.</p>
+      <p class="why">Where this lives: PR 05 (max effort).</p>
+    </div>
+  </details>
+</section>
+
+<!-- WAVES -->
+<section id="waves">
+  <div class="sec-head"><span class="eyebrow">Dependencies · columns are waves</span><h2>What has to exist before what</h2>
+  <p>Critical path: 02 → 04 → 05 → 06 → 07 → 08, with 01 → 03 feeding 04. Track B (merchant UI) rides the top lane.</p></div>
+  <figure>
+    <div class="scroll">
+    <svg viewBox="0 0 1000 380" role="img" aria-label="Dependency graph by wave. The critical path runs 02, 04, 05, 06, 07, 08, fed by 01 then 03. PR 00 is the ADR and blocks nothing.">
+      <defs>
+        <marker id="da" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" class="mk"/></marker>
+        <marker id="da-acc" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" class="mk-acc"/></marker>
+      </defs>
+      <g class="t-lab" text-anchor="middle">
+        <text x="60" y="14">W0</text><text x="185" y="14">W1</text><text x="310" y="14">W2</text><text x="435" y="14">W3</text><text x="560" y="14">W4</text><text x="685" y="14">W5</text><text x="810" y="14">W6</text><text x="935" y="14">W7</text>
+      </g>
+      <line x1="0" y1="78" x2="1000" y2="78" stroke="currentColor" stroke-opacity=".12"/>
+      <text x="996" y="72" text-anchor="end" class="t-lab">TRACK B · merchant UI</text>
+      <text x="996" y="96" text-anchor="end" class="t-lab">TRACK A · import pipeline</text>
+      <!-- edges -->
+      <path d="M102 45H268" class="e" marker-end="url(#da)"/>
+      <path d="M102 190C122 190 123 120 143 120" class="e" marker-end="url(#da)"/>
+      <path d="M227 120H268" class="e-crit" marker-end="url(#da-acc)"/>
+      <path d="M352 120C372 120 373 190 393 190" class="e-crit" marker-end="url(#da-acc)"/>
+      <path d="M227 190H393" class="e-crit" marker-end="url(#da-acc)"/>
+      <path d="M477 190C497 190 498 260 518 260" class="e-crit" marker-end="url(#da-acc)"/>
+      <path d="M477 190H614C630 190 626 45 641 45" class="e" marker-end="url(#da)"/>
+      <path d="M602 260H643" class="e-crit" marker-end="url(#da-acc)"/>
+      <path d="M727 260H768" class="e-crit" marker-end="url(#da-acc)"/>
+      <path d="M852 260C872 260 873 190 893 190" class="e-crit" marker-end="url(#da-acc)"/>
+      <!-- nodes -->
+      <g>
+        <rect x="18" y="28" width="84" height="34" rx="7" class="n-merged"/><text x="60" y="43" text-anchor="middle" class="t-id">#202</text><text x="60" y="56" text-anchor="middle" class="t-sub">merged</text>
+        <rect x="18" y="173" width="84" height="34" rx="7" class="n-merged"/><text x="60" y="188" text-anchor="middle" class="t-id">#201</text><text x="60" y="201" text-anchor="middle" class="t-sub">merged</text>
+        <rect x="268" y="28" width="84" height="34" rx="7" class="n-open"/><text x="310" y="43" text-anchor="middle" class="t-id">B2</text><text x="310" y="56" text-anchor="middle" class="t-sub">#206</text>
+        <rect x="643" y="28" width="84" height="34" rx="7" class="n-todo"/><text x="685" y="43" text-anchor="middle" class="t-id">B1</text><text x="685" y="56" text-anchor="middle" class="t-sub">110</text>
+        <rect x="143" y="103" width="84" height="34" rx="7" class="n-open"/><text x="185" y="118" text-anchor="middle" class="t-id">01</text><text x="185" y="131" text-anchor="middle" class="t-sub">#204</text>
+        <rect x="143" y="173" width="84" height="34" rx="7" class="n-open"/><text x="185" y="188" text-anchor="middle" class="t-id">02</text><text x="185" y="201" text-anchor="middle" class="t-sub">#205</text>
+        <rect x="143" y="333" width="84" height="34" rx="7" class="n-open"/><text x="185" y="348" text-anchor="middle" class="t-id">00</text><text x="185" y="361" text-anchor="middle" class="t-sub">#203 ADR</text>
+        <rect x="268" y="103" width="84" height="34" rx="7" class="n-done"/><text x="310" y="118" text-anchor="middle" class="t-id">03</text><text x="310" y="131" text-anchor="middle" class="t-sub">committed</text>
+        <rect x="393" y="173" width="84" height="34" rx="7" class="n-run"/><text x="435" y="188" text-anchor="middle" class="t-id">04</text><text x="435" y="201" text-anchor="middle" class="t-sub">implementing</text>
+        <rect x="518" y="243" width="84" height="34" rx="7" class="n-todo"/><text x="560" y="258" text-anchor="middle" class="t-id">05</text><text x="560" y="271" text-anchor="middle" class="t-sub">106</text>
+        <rect x="643" y="243" width="84" height="34" rx="7" class="n-todo"/><text x="685" y="258" text-anchor="middle" class="t-id">06</text><text x="685" y="271" text-anchor="middle" class="t-sub">107</text>
+        <rect x="768" y="243" width="84" height="34" rx="7" class="n-todo"/><text x="810" y="258" text-anchor="middle" class="t-id">07</text><text x="810" y="271" text-anchor="middle" class="t-sub">108</text>
+        <rect x="893" y="173" width="84" height="34" rx="7" class="n-todo"/><text x="935" y="188" text-anchor="middle" class="t-id">08</text><text x="935" y="201" text-anchor="middle" class="t-sub">enable</text>
+      </g>
+    </svg>
+    </div>
+    <div class="legend">
+      <span><i class="sw" style="background:var(--done-soft);border-color:var(--done)"></i>merged</span>
+      <span><i class="sw" style="background:var(--info-soft);border-color:var(--info)"></i>open PR</span>
+      <span><i class="sw" style="background:var(--accent-soft);border-color:var(--accent)"></i>committed in mega</span>
+      <span><i class="sw" style="background:var(--warn-soft);border-color:var(--warn);border-style:dashed"></i>in progress</span>
+      <span><i class="sw" style="background:var(--surface);border-color:var(--rule)"></i>not started</span>
+      <span><i class="sw" style="background:var(--accent);border-color:var(--accent);height:3px"></i>critical path</span>
+    </div>
+    <figcaption>Arrows point from a prerequisite to what needs it; transitive edges are left out. 08 needs all of Track A, so only its last hop is drawn.</figcaption>
+  </figure>
+  <details class="eli5">
+    <summary><span class="tag">ELI5</span>Why this order? <span class="hint"></span></summary>
+    <div class="body">
+      <p>It's like building a house. 01 teaches our code to read the file. 03 gives each import a place to wait. 02 writes the rules for a good row. 04 is the moment the merchant says "yes, import it". Only after that can 05 write orders, 06 reserve stock, and 07 clean up when something goes wrong.</p>
+      <p>08 is the ribbon-cutting. It only happens once everything else stands.</p>
+    </div>
+  </details>
+</section>
+
+<!-- SHIPPING -->
+<section id="ship">
+  <div class="sec-head"><span class="eyebrow">D8 · mega PR experiment</span><h2>How it ships</h2>
+  <p>The first slices are normal PRs. Everything after them lands as one PR with one commit per ticket, stacked on #205. If that gets unbearable, it splits back into separate PRs.</p></div>
+  <figure>
+    <div class="scroll">
+    <svg viewBox="0 0 1000 250" role="img" aria-label="Main has two standalone PRs, 00 and B2, and a stack of 01 and 02. The mega PR sits on top of 02 and holds six ticket commits, of which 03 is committed and 04 is in progress.">
+      <defs><marker id="sa" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" class="mk"/></marker></defs>
+      <line x1="10" y1="180" x2="990" y2="180" stroke="currentColor" stroke-width="3" stroke-opacity=".5"/>
+      <text x="10" y="172" class="t-lab">origin/main</text>
+      <!-- stack -->
+      <rect x="30" y="92" width="110" height="40" rx="7" class="n-open"/><text x="85" y="109" text-anchor="middle" class="t-id">#204 · 01</text><text x="85" y="124" text-anchor="middle" class="t-sub">CLEAN</text>
+      <rect x="170" y="92" width="110" height="40" rx="7" class="n-open"/><text x="225" y="109" text-anchor="middle" class="t-id">#205 · 02</text><text x="225" y="124" text-anchor="middle" class="t-sub t-warn">UNSTABLE</text>
+      <line x1="85" y1="132" x2="85" y2="178" class="e" marker-end="url(#sa)"/>
+      <line x1="170" y1="112" x2="142" y2="112" class="e" marker-end="url(#sa)"/>
+      <text x="85" y="80" text-anchor="middle" class="t-lab">stack · base →</text>
+      <!-- mega -->
+      <rect x="450" y="40" width="540" height="112" rx="10" class="n-zone"/>
+      <text x="464" y="62" class="t-id">Mega PR</text>
+      <text x="540" y="62" class="t-sub">rs/PROJ-100/order-import · local only</text>
+      <line x1="450" y1="112" x2="282" y2="112" class="e" marker-end="url(#sa)"/>
+      <g>
+        <rect x="464" y="84" width="50" height="44" rx="6" class="n-done"/><text x="489" y="104" text-anchor="middle" class="t-id">03</text><text x="489" y="119" text-anchor="middle" class="t-sub">a1b2</text>
+        <rect x="522" y="84" width="50" height="44" rx="6" class="n-run"/><text x="547" y="104" text-anchor="middle" class="t-id">04</text><text x="547" y="119" text-anchor="middle" class="t-sub">impl</text>
+        <rect x="580" y="84" width="50" height="44" rx="6" class="n-todo"/><text x="605" y="110" text-anchor="middle" class="t-id">05</text>
+        <rect x="638" y="84" width="50" height="44" rx="6" class="n-todo"/><text x="663" y="110" text-anchor="middle" class="t-id">06</text>
+        <rect x="696" y="84" width="50" height="44" rx="6" class="n-todo"/><text x="721" y="110" text-anchor="middle" class="t-id">07</text>
+        <rect x="754" y="84" width="50" height="44" rx="6" class="n-todo"/><text x="779" y="110" text-anchor="middle" class="t-id">B1</text>
+        <rect x="812" y="84" width="50" height="44" rx="6" class="n-todo"/><text x="837" y="110" text-anchor="middle" class="t-id">08</text>
+      </g>
+      <text x="464" y="144" class="t-sub">one commit per ticket · review fixes via fixup! + autosquash · main gets one squash commit</text>
+      <!-- standalone -->
+      <rect x="170" y="200" width="110" height="40" rx="7" class="n-open"/><text x="225" y="217" text-anchor="middle" class="t-id">#203 · 00</text><text x="225" y="232" text-anchor="middle" class="t-sub">ADR · BLOCKED</text>
+      <rect x="310" y="200" width="110" height="40" rx="7" class="n-open"/><text x="365" y="217" text-anchor="middle" class="t-id">#206 · B2</text><text x="365" y="232" text-anchor="middle" class="t-sub">BLOCKED</text>
+      <line x1="225" y1="200" x2="225" y2="184" class="e" marker-end="url(#sa)"/>
+      <line x1="365" y1="200" x2="365" y2="184" class="e" marker-end="url(#sa)"/>
+      <text x="30" y="224" class="t-lab">standalone →</text>
+    </svg>
+    </div>
+    <figcaption>BLOCKED means the PR is waiting on required review. #205 is UNSTABLE, so run <code>gh pr checks</code> before calling the stack ready. The orchestrator may commit each mega slice locally once its gate passes. There's one push, when the draft opens.</figcaption>
+  </figure>
+  <details class="eli5">
+    <summary><span class="tag">ELI5</span>Why one giant PR? <span class="hint"></span></summary>
+    <div class="body">
+      <p>Six small boxes stacked on each other means every time the bottom box changes, you re-pack all the boxes above it. One big box with six labelled envelopes inside avoids that. Reviewers can still open one envelope (one commit) at a time.</p>
+      <p>The cost: the box is heavy to review in one go. That's why it's labelled an experiment, with a way back.</p>
+    </div>
+  </details>
+</section>
+
+<!-- PR TABLE -->
+<section id="prs">
+  <div class="sec-head"><span class="eyebrow">11 tickets · parent PROJ-100</span><h2>PRs</h2>
+  <p>About +8k to +12k lines in total, mostly tests.</p></div>
+  <div class="tbl"><table>
+    <thead><tr><th>Slice</th><th>What it does</th><th>Ticket</th><th>Effort</th><th>Est. +LOC</th><th>Needs</th><th>State</th></tr></thead>
+    <tbody>
+      <tr><td class="id">00</td><td>ADR-0012: bulk import supersedes ADR-0010 in part</td><td class="num">101</td><td class="num">medium</td><td class="num">0.15–0.25k</td><td>—</td><td><span class="pill p-open">#203</span></td></tr>
+      <tr><td class="id">01</td><td>Streaming CSV parser with per-row errors</td><td class="num">102</td><td class="num">high</td><td class="num">0.8–1.2k</td><td>#201 ✓</td><td><span class="pill p-open">#204</span></td></tr>
+      <tr><td class="id">02</td><td>Row validation rules shared with the single-order form</td><td class="num">103</td><td class="num">high</td><td class="num">0.9–1.4k</td><td>—</td><td><span class="pill p-open">#205</span></td></tr>
+      <tr><td class="id">03</td><td>Staging table keyed by import id and row number</td><td class="num">104</td><td class="num">xhigh</td><td class="num">0.7–1.0k</td><td>01</td><td><span class="pill p-done">committed</span></td></tr>
+      <tr><td class="id">04</td><td>Confirm import, freeze staged rows, idempotent on retry</td><td class="num">105</td><td class="num">max</td><td class="num">1.2–1.8k</td><td>02, 03</td><td><span class="pill p-run">implementing</span></td></tr>
+      <tr><td class="id">05</td><td>Commit staged rows as orders in batches</td><td class="num">106</td><td class="num">max</td><td class="num">1.5–2.2k</td><td>04</td><td><span class="pill p-todo">next</span></td></tr>
+      <tr><td class="id">06</td><td>Reserve stock for committed orders</td><td class="num">107</td><td class="num">xhigh</td><td class="num">0.8–1.2k</td><td>05</td><td><span class="pill p-todo">queued</span></td></tr>
+      <tr><td class="id">07</td><td>Partial failure: hold, report and resume</td><td class="num">108</td><td class="num">max</td><td class="num">0.8–1.2k</td><td>05, 06</td><td><span class="pill p-todo">queued</span></td></tr>
+      <tr><td class="id">08</td><td>Acceptance run, feature flag on, first real import</td><td class="num">109</td><td class="num">high</td><td class="num">0.4–0.7k</td><td>all Track A</td><td><span class="pill p-todo">queued</span></td></tr>
+      <tr><td class="id">B1</td><td>Import progress and report page</td><td class="num">110</td><td class="num">high</td><td class="num">0.6–0.9k</td><td>04</td><td><span class="pill p-todo">queued</span></td></tr>
+      <tr><td class="id">B2</td><td>Upload screen with template download</td><td class="num">111</td><td class="num">medium</td><td class="num">0.3–0.5k</td><td>#202 ✓</td><td><span class="pill p-open">#206</span></td></tr>
+    </tbody>
+  </table></div>
+  <details class="eli5">
+    <summary><span class="tag">ELI5</span>What does PR 04's "confirm" mean? <span class="hint"></span></summary>
+    <div class="body">
+      <p>The staged rows are a draft. Confirming is the merchant saying "yes, these are the orders." From that moment the draft is locked: rows can't change, and the import has one outcome.</p>
+      <p>If they press the button twice, nothing is imported twice. If our server crashes halfway, it picks up where it left off instead of leaving a half-done import.</p>
+      <p class="why">Trap from the 02 review: nothing owns expiry for abandoned drafts today. 04 must assign it.</p>
+    </div>
+  </details>
+</section>
+
+<!-- DECISIONS -->
+<section id="decisions">
+  <div class="sec-head"><span class="eyebrow">Made · Rui can override</span><h2>Decisions</h2></div>
+  <div class="chips" role="group" aria-label="Filter decisions">
+    <button type="button" data-f="all" aria-pressed="true">All 9</button>
+    <button type="button" data-f="data" aria-pressed="false">Data</button>
+    <button type="button" data-f="arch" aria-pressed="false">Flow &amp; architecture</button>
+    <button type="button" data-f="scope" aria-pressed="false">Scope</button>
+    <button type="button" data-f="proc" aria-pressed="false">Process</button>
+  </div>
+  <div class="dec" id="dec">
+    <article data-g="data"><span class="k">D1</span><span class="w">Invalid rows are reported with a reason and never imported. A file with no valid rows fails the import.</span><span class="b">Guide · confirmed by Rui 2026-01-12</span></article>
+    <article data-g="data"><span class="k">D2</span><span class="w">Duplicate detection uses the merchant's own order reference, scoped to the merchant.</span><span class="b">Rui 2026-01-12</span></article>
+    <article data-g="arch"><span class="k">D3</span><span class="w">Orders are committed in batches of 200 inside one transaction per batch; a failed batch holds the import.</span><span class="b">Rui 2026-01-12</span></article>
+    <article data-g="arch"><span class="k">D4</span><span class="w">Validation reuses the single-order rules. No import-only rules.</span><span class="b">Code is the truth (#190)</span></article>
+    <article data-g="scope"><span class="k">D5</span><span class="w">Max file size is a code constant (10 MB). No config surface.</span><span class="b">Rui 2026-01-13</span></article>
+    <article data-g="scope"><span class="k">D6</span><span class="w">Progress fields are UI-only and stay out of the public API.</span><span class="b">Rui 2026-01-13 (was Q-C)</span></article>
+    <article data-g="arch" class="rev"><span class="k">D7</span><span class="w">Reverted: synchronous commit for small files. Background commit stands pending a team discussion; recorded as an ADR-0012 open item.</span><span class="b">Rui 2026-01-13</span></article>
+    <article data-g="proc"><span class="k">D8</span><span class="w">Mega PR experiment for everything after #205, one commit per ticket.</span><span class="b">Rui 2026-01-14</span></article>
+    <article data-g="proc"><span class="k">D9</span><span class="w">#195 is closed and not needed. 03–07 build on what main has.</span><span class="b">Rui 2026-01-14</span></article>
+  </div>
+</section>
+
+<!-- OPEN -->
+<section id="open">
+  <div class="sec-head"><span class="eyebrow">Blocking or shaping later slices</span><h2>Open questions</h2></div>
+  <div class="two">
+    <div class="callout"><span class="eyebrow">Team</span><h3>Synchronous or background commit?</h3><p>D7 is the working answer. Changing it would affect 05's batching and 07's recovery.</p></div>
+    <div class="callout"><span class="eyebrow">Product · Q-A</span><h3>Partial imports</h3><p>Should a merchant be able to commit only the valid rows when some are rejected? Blocks 04's confirm screen.</p></div>
+    <div class="callout"><span class="eyebrow">Product · Q-B</span><h3>Out-of-stock rows</h3><p>Reject the row, or import it as a backorder? Until answered, 06 rejects.</p></div>
+  </div>
+</section>
+
+<!-- DISPATCH -->
+<section id="dispatch">
+  <div class="sec-head"><span class="eyebrow">One model throughout</span><h2>How each slice gets built</h2>
+  <p>One workflow per wave. Agents edit and verify; only the orchestrator and Rui touch git.</p></div>
+  <figure>
+    <div class="scroll">
+    <svg viewBox="0 0 1000 230" role="img" aria-label="Each slice goes from handoff to implement, adversarial review and fix inside a no-git-writes boundary, then to a report and Rui's gate.">
+      <defs>
+        <marker id="pp" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" class="mk"/></marker>
+        <marker id="pp-acc" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" class="mk-acc"/></marker>
+      </defs>
+      <rect x="160" y="40" width="560" height="150" rx="12" class="n-zone"/>
+      <text x="174" y="60" class="t-lab">AGENTS · worktree per slice · edit + verify · no git writes</text>
+      <rect x="10" y="95" width="120" height="56" rx="8" class="n-plain"/><text x="70" y="119" text-anchor="middle" class="t-id">Handoff</text><text x="70" y="136" text-anchor="middle" class="t-sub">order-import-nn.md</text>
+      <rect x="180" y="95" width="150" height="56" rx="8" class="n-plain"/><text x="255" y="119" text-anchor="middle" class="t-id">Implement</text><text x="255" y="136" text-anchor="middle" class="t-sub">at slice effort</text>
+      <rect x="370" y="95" width="150" height="56" rx="8" class="n-plain"/><text x="445" y="119" text-anchor="middle" class="t-id">Adversarial</text><text x="445" y="136" text-anchor="middle" class="t-sub">xhigh · max on max</text>
+      <rect x="560" y="95" width="140" height="56" rx="8" class="n-plain"/><text x="630" y="119" text-anchor="middle" class="t-id">Fix</text><text x="630" y="136" text-anchor="middle" class="t-sub">crit/hi/med</text>
+      <rect x="750" y="95" width="100" height="56" rx="8" class="n-plain"/><text x="800" y="119" text-anchor="middle" class="t-id">Report</text><text x="800" y="136" text-anchor="middle" class="t-sub">5 items</text>
+      <rect x="880" y="95" width="110" height="56" rx="8" class="n-hot"/><text x="935" y="119" text-anchor="middle" class="t-id t-acc">Gate</text><text x="935" y="136" text-anchor="middle" class="t-sub">Rui / orchestrator</text>
+      <line x1="130" y1="123" x2="178" y2="123" class="e" marker-end="url(#pp)"/>
+      <line x1="330" y1="123" x2="368" y2="123" class="e" marker-end="url(#pp)"/>
+      <line x1="520" y1="123" x2="558" y2="123" class="e" marker-end="url(#pp)"/><text x="539" y="114" text-anchor="middle" class="t-sub">findings</text>
+      <line x1="700" y1="123" x2="748" y2="123" class="e" marker-end="url(#pp)"/>
+      <line x1="850" y1="123" x2="878" y2="123" class="e-crit" marker-end="url(#pp-acc)"/>
+      <path d="M445 95V78H800V93" class="e e-dash" marker-end="url(#pp)"/><text x="622" y="74" text-anchor="middle" class="t-sub">no findings → skip fix</text>
+      <path d="M630 151V172H255V153" class="e e-dash" marker-end="url(#pp)"/><text x="442" y="186" text-anchor="middle" class="t-sub">re-verify</text>
+      <text x="935" y="172" text-anchor="middle" class="t-sub">crit session</text>
+      <text x="935" y="186" text-anchor="middle" class="t-sub">commit · draft PR</text>
+      <text x="10" y="222" class="t-lab">Effort: 00 B2 medium · 01 02 08 B1 high · 03 06 xhigh · 04 05 07 max</text>
+    </svg>
+    </div>
+    <figcaption>The reviewer returns crit/hi/med findings only, each with file:line, a failure scenario and a fix, plus a conformance table against the guide. Inside the mega PR the orchestrator commits each slice once its gate passes; outside it, Rui approves each commit.</figcaption>
+  </figure>
+  <div class="two">
+    <div class="card"><h3>Every report contains</h3><ul>
+      <li>Worktree, branch, base SHA, and whether <code>origin/main</code> moved</li>
+      <li>Files changed, with reasoning for each open judgement call</li>
+      <li>Tests run, passed, and not run (with why)</li>
+      <li>Contradictions with the handoff or the guide</li>
+      <li>A one-line conventional commit message and the diff stat</li>
+    </ul></div>
+    <div class="card"><h3>Mega branch now</h3><ul>
+      <li>Worktree <code>.worktrees/order-import-mega</code> on #205 (<code>e5f6a7b8</code>)</li>
+      <li>Integration DB for the whole branch: <code>order_import_mega_test</code></li>
+      <li>03 verified: unit and integration suites green, lint clean</li>
+      <li>04: agent running → adversarial review → fix → verify → commit</li>
+    </ul></div>
+  </div>
+  <details class="eli5">
+    <summary><span class="tag">ELI5</span>Why a hostile reviewer, and why no git for agents? <span class="hint"></span></summary>
+    <div class="body">
+      <p>One helper builds the thing. A second helper's only job is to try to break it, the way a tester pokes at a bridge before cars drive over. A third fixes whatever broke. Nobody gets to lock the result in; that's Rui's (or the orchestrator's) call after reading the report.</p>
+      <p>Keeping git out of the helpers' hands means a confused helper can make a mess in its sandbox, but it can't ship that mess.</p>
+    </div>
+  </details>
+</section>
+
+<!-- RULES -->
+<section id="rules">
+  <div class="sec-head"><span class="eyebrow">Non-negotiables</span><h2>Guardrails</h2></div>
+  <div class="two">
+    <div class="card"><h3>Every agent</h3><ul>
+      <li>No commit, push, PR, stash pop or branch mutation</li>
+      <li>Locate code by symbol; handoff line numbers are advisory</li>
+      <li>No defensive guards on internal contracts, no comments by default, no skipped tests</li>
+      <li>Only the commit service writes orders; nothing else touches the orders table</li>
+      <li>No production data: imports run against fixtures only</li>
+      <li>Targeted tests while iterating; one integration run at the end</li>
+    </ul></div>
+    <div class="card"><h3>Publication (04, 05, B1)</h3><ul>
+      <li>They change public API behaviour or schemas</li>
+      <li>Regenerate the OpenAPI snapshot and inspect the diff</li>
+      <li>No new public endpoint beyond the import resource</li>
+      <li>Progress fields stay UI-only (D6)</li>
+    </ul></div>
+    <div class="card"><h3>Hands off</h3><ul>
+      <li>No <code>git worktree remove/prune</code>, <code>branch -d/-D</code>, <code>stash drop/pop/clear</code>, <code>gc</code></li>
+      <li>Nothing moved under <code>.worktrees/</code> or <code>.claude/handoffs/</code> except own order-import worktrees</li>
+    </ul></div>
+    <div class="card"><h3>Inputs</h3><ul>
+      <li>Sample files: <code>test/fixtures/imports/</code> (synthetic, no real merchant data)</li>
+      <li>Existing single-order validator: <code>validateOrder</code></li>
+    </ul></div>
+  </div>
+  <details class="eli5">
+    <summary><span class="tag">ELI5</span>What does "publication" mean here? <span class="hint"></span></summary>
+    <div class="body">
+      <p>Some changes show up in the public menu other developers read (the API docs and SDKs). Adding a dish to that menu is a promise. So whenever a slice touches the API, we regenerate the menu and read it, to make sure only what we meant to promise is on it.</p>
+      <p>Being behind a login is not the same as being off the menu. That's a separate check.</p>
+    </div>
+  </details>
+</section>
+
+<footer>Rendered from .claude/handoffs/order-import-ORCHESTRATOR.md and the 11 slice handoffs. The markdown stays the agents' source; this page is the human view. PR states from gh on 2026-01-14.</footer>
+</div>
+
+<script>
+(function(){
+  var KEY='plan-eli5';
+  var btn=document.getElementById('eli-all');
+  var all=[].slice.call(document.querySelectorAll('details.eli5'));
+  function set(on){
+    all.forEach(function(d){d.open=on});
+    btn.setAttribute('aria-pressed',on?'true':'false');
+    btn.textContent=on?'ELI5: hide all':'ELI5: show all';
+    try{localStorage.setItem(KEY,on?'1':'0')}catch(e){}
+  }
+  var saved=null; try{saved=localStorage.getItem(KEY)}catch(e){}
+  if(saved==='1') set(true);
+  btn.addEventListener('click',function(){set(btn.getAttribute('aria-pressed')!=='true')});
+
+  var chips=[].slice.call(document.querySelectorAll('.chips button'));
+  var rows=[].slice.call(document.querySelectorAll('#dec article'));
+  chips.forEach(function(c){c.addEventListener('click',function(){
+    chips.forEach(function(x){x.setAttribute('aria-pressed',x===c?'true':'false')});
+    var f=c.getAttribute('data-f');
+    rows.forEach(function(r){r.hidden=!(f==='all'||r.getAttribute('data-g')===f)});
+  })});
+})();
+</script>
+</body>
+</html>

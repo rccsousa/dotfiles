@@ -1,0 +1,8 @@
+.DS_Store
+.idea/
+node_modules/
+.env
+.envrc
+.elixir_ls
+.worktrees/
+**/.claude/settings.local.json

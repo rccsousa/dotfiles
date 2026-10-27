@@ -1,0 +1,4 @@
+interface:
+  display_name: "Test-Driven Development"
+  short_description: "Build one behavior through red, green, refactor"
+  default_prompt: "Use $tdd to implement this task one observable behavior slice at a time."
